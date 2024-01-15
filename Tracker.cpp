@@ -124,26 +124,31 @@ cv::Point Tracker::next(const cv::Mat& frame) {
         auto [Ix, Iy] = partialDerivatives(I[l]);
         Eigen::MatrixXd Iblock = I[l].block(1, 1, I[l].rows() - 2, I[l].cols() - 2);
         Eigen::MatrixXd Jblock = J[l].block(1, 1, J[l].rows() - 2, J[l].cols() - 2);
+        int Sx = (int)Iblock.cols() - 1, Sy = (int)Iblock.rows() - 1;
         Eigen::Vector2d v(0, 0), nu(0, 1);
         while (nu.norm() > 0.03) {
-            int txmin, txmax, tymin, tymax;
-            txmin = (int)floor(ul.x() + fmin(g.x() + v.x(), 0));
-            txmax = (int)floor((int)Ix.cols() - 1 - ul.x() - fmax(g.x() + v.x(), 0));
-            tymin = (int)floor(ul.y() + fmin(g.y() + v.y(), 0));
-            tymax = (int)floor((int)Iy.cols() - 1 - ul.y() - fmax(g.y() + v.y(), 0));
+            double top = ul.y() - wy;
+            double left = ul.x() - wx;
+            int rows = wy * 2 + 1;
+            int cols = wx * 2 + 1;
 
-            txmin = std::min(txmin, wx);
-            txmax = std::min(txmax, wx);
-            tymin = std::min(tymin, wy);
-            tymax = std::min(tymax, wy);
+            while (top < 0 || top + g.y() + v.y() < 0) {
+                top += 1;
+                rows -= 1;
+            }
+            while (left < 0 || left + g.x() + v.x() < 0) {
+                left += 1;
+                cols -= 1;
+            }
+            while (top + rows > Sy || top + rows + g.y() + v.y() > Sy)
+                rows -= 1;
+            while (left + cols > Sx || left + cols + g.x() + v.x() > Sx)
+                cols -= 1;
 
-            if (txmin < 0 || txmax < 0 || tymin < 0 || tymax < 0)
-                std::cout << "Point Lost" << std::endl;
-
-            double top = ul.y() - tymin;
-            double left = ul.x() - txmin;
-            int rows = tymax + tymin + 1;
-            int cols = txmax + txmin + 1;
+            if (rows <= 0 || cols <= 0) {
+                lost = true;
+                return {0, 0};
+            }
 
             auto [G, b] = calculateGb(
                     Iblock, Jblock,
@@ -156,5 +161,10 @@ cv::Point Tracker::next(const cv::Mat& frame) {
     }
     u += g / 2;
     I = J;
+    lost = false;
     return {(int)u.x(), (int)u.y()};
+}
+
+bool Tracker::isLost() const {
+    return lost;
 }

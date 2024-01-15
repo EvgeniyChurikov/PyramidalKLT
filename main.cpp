@@ -32,13 +32,15 @@ int main() {
     tracker.Init(frame, object_location, 5, 5, 3);
 
     // iterate through other frames
-    for (int i = 1; i < 75; ++i) {
+    for (int i = 1; i < filenames.size(); ++i) {
         frame = cv::imread(source_folder_path + '/' + filenames[i]);
         if (frame.empty()) {
             std::cerr << "Can't load frame" << std::endl;
             return 1;
         }
         object_location = tracker.next(frame);
+        if (tracker.isLost())
+            break;
         cv::putText(frame,
                     "x: " + std::to_string(object_location.x) + ", y: " + std::to_string(object_location.y),
                     cv::Point(10, 20), cv::FONT_HERSHEY_SIMPLEX,

@@ -1,5 +1,5 @@
-#ifndef KLT1STTRY_TRACKER_H
-#define KLT1STTRY_TRACKER_H
+#ifndef PYRAMIDALKLT_TRACKER_H
+#define PYRAMIDALKLT_TRACKER_H
 
 #include <vector>
 #include <opencv2/opencv.hpp>
@@ -10,6 +10,7 @@ private:
     std::vector<Eigen::MatrixXd> I;
     Eigen::Vector2d u;
     int m, wx, wy;
+    bool lost;
 
     static std::vector<Eigen::MatrixXd> makePyramid(const cv::Mat& frame, int m);
 
@@ -28,7 +29,8 @@ public:
 
     cv::Point next(const cv::Mat& frame);
 
+    bool isLost() const;
 };
 
 
-#endif //KLT1STTRY_TRACKER_H
+#endif //PYRAMIDALKLT_TRACKER_H
