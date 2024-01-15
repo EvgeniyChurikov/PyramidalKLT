@@ -30,7 +30,13 @@ int main() {
     cv::Point object_location(298, 92);
     Tracker tracker;
     tracker.Init(frame, object_location, 5, 5, 3);
-    cv::circle(frame, object_location, 10, cv::Scalar(0, 0, 255), 2);
+    cv::putText(frame,
+                "x: " + std::to_string(object_location.x) + ", y: " + std::to_string(object_location.y),
+                cv::Point(10, 20), cv::FONT_HERSHEY_SIMPLEX,
+                0.5, cv::Scalar(0, 0, 255), 1);
+    cv::rectangle(frame,
+                  object_location - cv::Point(5, 5), object_location + cv::Point(5, 5),
+                  cv::Scalar(0, 0, 255), 2);
     cv::imwrite(output_folder_path + '/' + filenames[0], frame);
 
     // iterate through other frames
@@ -41,7 +47,13 @@ int main() {
             return 1;
         }
         object_location = tracker.next(frame);
-        cv::circle(frame, object_location, 10, cv::Scalar(0, 0, 255), 2);
+        cv::putText(frame,
+                    "x: " + std::to_string(object_location.x) + ", y: " + std::to_string(object_location.y),
+                    cv::Point(10, 20), cv::FONT_HERSHEY_SIMPLEX,
+                    0.5, cv::Scalar(0, 0, 255), 1);
+        cv::rectangle(frame,
+                      object_location - cv::Point(5, 5), object_location + cv::Point(5, 5),
+                      cv::Scalar(0, 0, 255), 2);
         cv::imwrite(output_folder_path + '/' + filenames[i], frame);
         std::cout << filenames[i] << std::endl;
     }
