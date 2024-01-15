@@ -1,6 +1,4 @@
 #include "Tracker.h"
-#include <iostream>
-#include <utility>
 
 // external 1px border in every layer
 std::vector<Eigen::MatrixXd> Tracker::makePyramid(const cv::Mat& frame, int m) {
