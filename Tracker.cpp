@@ -126,6 +126,7 @@ cv::Point Tracker::next(const cv::Mat& frame) {
         Eigen::MatrixXd Jblock = J[l].block(1, 1, J[l].rows() - 2, J[l].cols() - 2);
         int Sx = (int)Iblock.cols() - 1, Sy = (int)Iblock.rows() - 1;
         Eigen::Vector2d v(0, 0), nu(0, 1);
+        int k = 0;
         while (nu.norm() > 0.03) {
             double top = ul.y() - wy;
             double left = ul.x() - wx;
@@ -145,7 +146,7 @@ cv::Point Tracker::next(const cv::Mat& frame) {
             while (left + cols > Sx || left + cols + g.x() + v.x() > Sx)
                 cols -= 1;
 
-            if (rows <= 0 || cols <= 0) {
+            if (rows <= 0 || cols <= 0 || ++k > 50) {
                 lost = true;
                 return {0, 0};
             }
